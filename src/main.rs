@@ -27,7 +27,7 @@ pub extern "C" fn main() -> ! {
         // Blink the LED
         let gpset0 = gpio_base.add(7);  // GPIO set register
         let gpclr0 = gpio_base.add(10); // GPIO clear register
-        let gpio21_bit = 1 << 21;
+        let gpio21_bit = 1 << 21;// this in binary is 0b00000000000000000000001000000000, which corresponds to GPIO 21.
         
         loop {
             // Turn LED on

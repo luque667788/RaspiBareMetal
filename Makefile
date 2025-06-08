@@ -23,7 +23,8 @@ TARGET = aarch64-unknown-none
 KERNEL = kernel8.img
 # ELF: Path to the compiled ELF (Executable and Linkable Format) file.
 # $(TARGET) here expands the TARGET variable defined above.
-ELF = target/$(TARGET)/release/rpi4-baremetal
+#TODO! change this to release
+ELF = target/$(TARGET)/debug/rpi4-baremetal
 
 # Tools: Variables for cross-compilation toolchain commands.
 # OBJCOPY: Used to copy and translate object files. Here, to convert ELF to a raw binary.
@@ -37,7 +38,7 @@ NM = aarch64-linux-gnu-nm
 # .PHONY declares targets that are not actual files.
 # This prevents 'make' from getting confused if a file with the same name as a phony target exists.
 # It also ensures the commands for these targets run every time they are invoked, regardless of file timestamps.
-.PHONY: all clean debug run qemu install-deps docker-build docker-run docker-shell
+.PHONY: all clean debug run qemu install-deps docker-build docker-compile docker-shell docker-qemu-debug
 
 # --- Main Build Rule ---
 # 'all' is often the default target. When you run 'make' without specifying a target,
@@ -65,7 +66,8 @@ $(ELF): src/main.rs src/boot.S linker.ld build.rs Cargo.toml
 # Uses Cargo (Rust's build system and package manager) to build the project.
 # '--release' builds an optimized version.
 # '--target $(TARGET)' specifies the cross-compilation target.
-	cargo build --release --target $(TARGET)
+#TODO LATER change this to release build "--release"
+	cargo build --target $(TARGET)
 
 # --- Kernel Image Creation Rule ---
 # This rule defines how to create the raw kernel binary image '$(KERNEL)'.
@@ -101,12 +103,12 @@ qemu: $(KERNEL)
 # Runs the QEMU AArch64 system emulator.
 # The backslash '\' is used to continue a long command onto the next line.
 	qemu-system-aarch64 \
-		-machine raspi4b \  
-		-cpu cortex-a72 \   
-		-kernel $(KERNEL) \ 
-		-serial stdio \     
-		-display none \     
-		-d guest_errors    
+		-machine raspi4b \
+		-cpu cortex-a72 \
+		-kernel $(KERNEL) \
+		-serial stdio \
+		-display none \
+		-d guest_errors
 # Emulate a Raspberry Pi 4 Model B.
 # Use Cortex-A72 CPU.
 # Load the specified kernel image.
@@ -124,14 +126,14 @@ qemu-debug: $(KERNEL)
 		-kernel $(KERNEL) \
 		-serial stdio \
 		-display none \
-		# Open a GDB server on telnet port 1234. '-S' freezes CPU at startup (waits for GDB).
-		-monitor telnet:127.0.0.1:1234,server,nowait \
-		-d guest_errors,int \ 
-		-s \                  
-		-S       
+		-monitor telnet:127.0.0.1:4444,server,nowait \
+		-d guest_errors,int \
+		-gdb tcp::1234 \
+		-S
 # Log guest errors and interrupts.
 # Shorthand for -gdb tcp::1234. Use this if you want to connect with gdb.
 # Freeze CPU at startup (use 'c' in GDB to continue).             
+#Open a GDB server on telnet port 1234. '-S' freezes CPU at startup (waits for GDB).
 
 # --- Clean Rule ---
 # 'clean' is a common phony target to remove build artifacts.
@@ -148,7 +150,7 @@ docker-build:
 	docker build -t rpi4-build .
 
 # Build project in Docker
-docker-run: docker-build
+docker-compile: docker-build
 	docker run --rm -v $(PWD):/app rpi4-build make all
 
 # Interactive shell in Docker
@@ -157,4 +159,15 @@ docker-shell: docker-build
 
 # Run QEMU in Docker
 docker-qemu: docker-build
-	docker run --rm -v $(PWD):/app -p 1234:1234 rpi4-build make qemu
+	docker run --rm --init --sig-proxy=true -v $(PWD):/app -p 1234:1234 rpi4-build make qemu
+
+# Run QEMU with debug in Docker
+docker-qemu-debug: docker-build
+	docker stop $$(docker ps -q --filter ancestor=rpi4-build --filter publish=1234 --filter publish=4444) >/dev/null 2>&1 || true
+	docker rm $$(docker ps -a -q --filter ancestor=rpi4-build --filter publish=1234 --filter publish=4444) >/dev/null 2>&1 || true
+	docker run --rm --init --sig-proxy=true -v $(PWD):/app -p 1234:1234 -p 4444:4444 rpi4-build make qemu-debug
+
+
+# Start a debug session with proper ARM64 configuration
+debug-session: $(KERNEL)
+	./debug.sh
