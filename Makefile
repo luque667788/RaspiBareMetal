@@ -151,21 +151,21 @@ docker-build:
 
 # Build project in Docker
 docker-compile: docker-build
-	docker run --rm -v $(PWD):/app rpi4-build make all
+	docker run --rm -u $(shell id -u):$(shell id -g) -v $(PWD):/app rpi4-build make all
 
 # Interactive shell in Docker
 docker-shell: docker-build
-	docker run --rm -it -v $(PWD):/app rpi4-build bash
+	docker run --rm -it -u $(shell id -u):$(shell id -g) -v $(PWD):/app rpi4-build bash
 
 # Run QEMU in Docker
 docker-qemu: docker-build
-	docker run --rm --init --sig-proxy=true -v $(PWD):/app -p 1234:1234 rpi4-build make qemu
+	docker run --rm --init --sig-proxy=true -u $(shell id -u):$(shell id -g) -v $(PWD):/app -p 1234:1234 rpi4-build make qemu
 
 # Run QEMU with debug in Docker
 docker-qemu-debug: docker-build
 	docker stop $$(docker ps -q --filter ancestor=rpi4-build --filter publish=1234 --filter publish=4444) >/dev/null 2>&1 || true
 	docker rm $$(docker ps -a -q --filter ancestor=rpi4-build --filter publish=1234 --filter publish=4444) >/dev/null 2>&1 || true
-	docker run --rm --init --sig-proxy=true -v $(PWD):/app -p 1234:1234 -p 4444:4444 rpi4-build make qemu-debug
+	docker run --rm --init --sig-proxy=true -u $(shell id -u):$(shell id -g) -v $(PWD):/app -p 1234:1234 -p 4444:4444 rpi4-build make qemu-debug
 
 
 # Start a debug session with proper ARM64 configuration
