@@ -1,0 +1,22 @@
+[package]
+name = "rpi4-baremetal"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# No dependencies for bare-metal
+
+[profile.dev]
+panic = "abort"
+lto = true
+codegen-units = 1 # q: what is codegen-units?
+# A: `codegen-units` controls how many code generation units the compiler uses.
+# A value of 1 means that the entire crate is compiled as a single unit,
+# a compilation unit is a part of the code that can be compiled independently.
+# we do that to reduce the binary size and improve performance.
+
+[profile.release]
+panic = "abort"
+lto = true
+codegen-units = 1
+opt-level = "s"  # Optimize for size

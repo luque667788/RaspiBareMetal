@@ -1,0 +1,25 @@
+# This section defines general build configurations for the Rust project.
+[build]
+# Specifies the default target triple for compilation.
+# "aarch64-unknown-none" means:
+#   - aarch64: Target ARM 64-bit architecture.
+#   - unknown: The vendor is unknown.
+#   - none: Indicates that no specific operating system is being targeted (bare metal).
+target = "aarch64-unknown-none"
+
+# This section defines specific configurations for the "aarch64-unknown-none" target.
+[target.aarch64-unknown-none]
+# `rustflags` is an array of flags that will be passed to the Rust compiler (`rustc`)
+# when building for this specific target.
+rustflags = [
+    # "-C" is used to pass a codegen option to rustc.
+    # "link-arg=-Tlinker.ld" tells rustc to pass the argument "-Tlinker.ld" to the linker.
+    # This typically instructs the linker to use the linker script named "linker.ld"
+    # to control how the output binary is organized in memory.
+    "-C", "link-arg=-Tlinker.ld",
+    # "link-arg=--nmagic" tells rustc to pass the argument "--nmagic" to the linker.
+    # The "--nmagic" linker option typically disables the alignment of output sections
+    # to page boundaries. This can be useful in embedded systems to reduce binary size
+    # by not padding sections.
+    "-C", "link-arg=--nmagic",
+]
