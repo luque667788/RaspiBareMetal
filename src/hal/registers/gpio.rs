@@ -6,8 +6,7 @@
 //! The addresses and register layouts are based on the BCM2835/BCM2837 ARM Peripherals datasheets.
 
 /// Base address for GPIO registers.
-pub const GPIO_REGS_BASE: usize = 0x7E200000; // For RPi models with VideoCore IV (e.g., RPi 2, 3, Zero)
-                                             // On RPi 4, this would be 0xFE200000.
+pub const GPIO_REGS_BASE: usize = 0xFE200000;
 
 /// Pointer to the GPIO registers.
 pub const GPIO_REGS: *mut GpioRegisters = GPIO_REGS_BASE as *mut GpioRegisters;

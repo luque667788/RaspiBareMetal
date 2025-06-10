@@ -3,3 +3,4 @@
 pub mod utils;
 pub mod gpio;
 pub mod auxiliary;
+pub mod uart;
