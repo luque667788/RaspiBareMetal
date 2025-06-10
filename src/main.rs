@@ -2,6 +2,9 @@
 #![no_main]
 
 use core::panic::PanicInfo;
+mod drivers;
+
+
 
 // This is what your assembly boot.S calls
 #[no_mangle] // Ensure the function name is not mangled by the compiler
