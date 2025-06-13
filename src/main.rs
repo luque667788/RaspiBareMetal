@@ -11,49 +11,63 @@ mod hal;
 #[no_mangle] // Ensure the function name is not mangled by the compiler
 // this is the section main of that the assembly code will jump to
 pub extern "C" fn main() -> ! {
-    // Simple LED blink example - write to GPIO
-    // RPi4 GPIO base address is 0xFE200000
+    // Initialize UART first
+    drivers::uart::init();
     
-    let gpio_base = 0xFE200000 as *mut u32;// this is not unsafe becasue we are not dereferencing it yet (just creating a pointer)
-    // we get this value from the Raspberry Pi 4 documentation, which specifies the base address for GPIO registers.
-
-    // The GPIO registers are memory-mapped, so we can use raw pointers to access them.
-    // The GPIO registers are 32-bit wide, so we can use u32 pointers.
-    unsafe {
-        // Set GPIO 21 as output (built-in LED on some RPi4 boards)
-        // GPFSEL2 register controls GPIO 20-29
-        let gpfsel2 = gpio_base.add(2);// the function .add(2) will do pointer arithmetic, moving the pointer 2 * 4 bytes (since each register is 4 bytes) to point to GPFSEL2.
-        let mut val = gpfsel2.read_volatile();
-        val &= !(0b111 << 3); // Clear GPIO 21 function bits
-        val |= 0b001 << 3;    // Set as output
-        gpfsel2.write_volatile(val);
+    // Send a test message
+    println!("Hello from Raspberry Pi 4 UART!");
+    println!("UART is working!");
+    println!("Send any character to see it echoed back!");
+    
+    let mut counter = 0u32;
+    loop {
+        // Send counter via UART
+        println!("Loop count: {}", counter);
         
-        // Blink the LED
-        let gpset0 = gpio_base.add(7);  // GPIO set register
-        let gpclr0 = gpio_base.add(10); // GPIO clear register
-        let gpio21_bit = 1 << 21;// this in binary is 0b00000000000000000000001000000000, which corresponds to GPIO 21.
-        
-        loop {
-            // Turn LED on
-            gpset0.write_volatile(gpio21_bit);
-            
-            // Simple delay
-            for _ in 0..1000000 {
-                core::hint::spin_loop();
-            }
-            
-            // Turn LED off
-            gpclr0.write_volatile(gpio21_bit);
-            
-            // Simple delay
-            for _ in 0..1000000 {
-                core::hint::spin_loop();
-            }
+        // Check for incoming UART data and echo it
+        if let Some(received_byte) = drivers::uart::read_byte() {
+            print!("Received: '{}' (0x{:02X})\r\n", received_byte as char, received_byte);
         }
+        
+        // Simple delay
+        for _ in 0..1000000 {
+            core::hint::spin_loop();
+        }
+        
+        counter += 1;
     }
 }
 
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
     loop {}
+}
+
+// Simple print macro for easier UART output
+#[macro_export]
+macro_rules! print {
+    ($($arg:tt)*) => {{
+        use core::fmt::Write;
+        let mut writer = crate::UartWriter;
+        write!(writer, $($arg)*).ok();
+    }};
+}
+
+#[macro_export]
+macro_rules! println {
+    () => (print!("\r\n"));
+    ($($arg:tt)*) => {{
+        print!($($arg)*);
+        print!("\r\n");
+    }};
+}
+
+// Simple wrapper to implement Write trait for UART
+pub struct UartWriter;
+
+impl core::fmt::Write for UartWriter {
+    fn write_str(&mut self, s: &str) -> core::fmt::Result {
+        drivers::uart::write_string(s);
+        Ok(())
+    }
 }
