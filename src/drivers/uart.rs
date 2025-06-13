@@ -1,9 +1,15 @@
+use crate::hal::registers::uart::{MiniUartRegisters, MINI_UART_REGS};
+use crate::hal::registers::gpio::GpioRegisters;
+use crate::hal::registers::utils::*;
+use crate::hal::registers::auxiliary::{AUX_REGS_BASE, AUX_REGS}; 
+
 pub fn init() {
     // Initialize UART driver
     
 
     // setup the GPIO 14 for TX and GPIO 15 for RX (make them operate in function 5 mode)
     // GPFSELn registers control the function of GPIO pins
+
     
     
     // write the corresponding 3-bit value to its FSEL field. For ALT5, the value is 010

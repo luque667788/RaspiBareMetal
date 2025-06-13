@@ -3,6 +3,7 @@
 
 use core::panic::PanicInfo;
 mod drivers;
+mod hal;
 
 
 
