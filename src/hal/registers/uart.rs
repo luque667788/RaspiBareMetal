@@ -63,7 +63,7 @@ pub struct MiniUartRegisters {
 
 /// Base address for the PL011 UART registers (UART0).
 /// This is the standard UART on the BCM2835/BCM2837 SoCs.
-pub const PL011_UART_BASE: usize = 0x3F201000; // For RPi 2/3. Use 0x20201000 for RPi 1/Zero.
+pub const PL011_UART_BASE: usize = 0xFE201000; // For RPi 2/3. Use 0x20201000 for RPi 1/Zero.
 
 /// Pointer to the PL011 UART registers.
 pub const PL011_UART_REGS: *mut Pl011UartRegisters = PL011_UART_BASE as *mut Pl011UartRegisters;
@@ -72,43 +72,95 @@ pub const PL011_UART_REGS: *mut Pl011UartRegisters = PL011_UART_BASE as *mut Pl0
 /// This struct provides direct access to the full UART (UART0) functionality.
 #[repr(C)]
 pub struct Pl011UartRegisters {
-    /// Data Register. Read: RX FIFO, Write: TX FIFO.
+    /// Data Register (DR) - 0x00
+    /// Read: RX FIFO, Write: TX FIFO.
+    /// Bits:
+    ///   7:0   - Data (read/write)
+    ///   8     - Framing error (read)
+    ///   9     - Parity error (read)
+    ///   10    - Break error (read)
+    ///   11    - Overrun error (read)
+    ///   31:12 - Reserved
     pub dr: u32,                // 0x00
-    /// Receive Status / Error Clear Register.
+    /// Receive Status / Error Clear Register (RSRECR) - 0x04
+    /// Bits:
+    ///   0     - Framing error
+    ///   1     - Parity error
+    ///   2     - Break error
+    ///   3     - Overrun error
+    ///   31:4  - Reserved
+    /// Write any value to clear errors.
     pub rsrecr: u32,            // 0x04
     _reserved0: [u32; 4],       // 0x08-0x14 (unused)
-    /// Flag Register. Status bits for TX/RX FIFO, busy, etc.
+    /// Flag Register (FR) - 0x18
+    /// Bits:
+    ///   0     - Clear to send (CTS)
+    ///   1     - Data set ready (DSR)
+    ///   2     - Data carrier detect (DCD)
+    ///   3     - Busy (1 = UART is transmitting data)
+    ///   4     - RX FIFO empty (1 = empty)
+    ///   5     - TX FIFO full (1 = full)
+    ///   6     - RX FIFO full (1 = full)
+    ///   7     - TX FIFO empty (1 = empty)
+    ///   8     - Ring indicator (RI)
+    ///   31:9  - Reserved
     pub fr: u32,                // 0x18
     _reserved1: u32,            // 0x1C
-    /// IrDA Low-Power Counter Register (not typically used).
+    /// IrDA Low-Power Counter Register (ILPR) - 0x20
+    /// Not typically used.
     pub ilpr: u32,              // 0x20
-    /// Integer Baud Rate Divisor.
+    /// Integer Baud Rate Divisor (IBRD) - 0x24
+    /// Bits 15:0: Integer part of baud rate divisor.
+    /// Baud rate = UARTCLK / (16 * (IBRD + FBRD/64))
     pub ibrd: u32,              // 0x24
-    /// Fractional Baud Rate Divisor.
+    /// Fractional Baud Rate Divisor (FBRD) - 0x28
+    /// Bits 5:0: Fractional part of baud rate divisor.
     pub fbrd: u32,              // 0x28
-    /// Line Control Register. Data size, parity, stop bits, FIFO enable.
+    /// Line Control Register (LCRH) - 0x2C
+    /// Bits:
+    ///   0     - Send break (BRK)
+    ///   1     - Parity enable (PEN)
+    ///   2     - Even parity select (EPS)
+    ///   3     - Two stop bits select (STP2)
+    ///   4     - Enable FIFOs (FEN)
+    ///   5:6   - Word length (WLEN) (00=5 bits, 01=6 bits, 10=7 bits, 11=8 bits)
+    ///   7     - Stick parity select (SPS)
+    ///   31:8  - Reserved
     pub lcrh: u32,              // 0x2C
-    /// Control Register. Enables UART, TX, RX, etc.
+    /// Control Register (CR) - 0x30
+    /// Bits:
+    ///   0     - UART enable (UARTEN)
+    ///   1     - SIR enable (SIREN)
+    ///   2     - SIR low-power mode (SIRLP)
+    ///   8     - Transmit enable (TXE)
+    ///   9     - Receive enable (RXE)
+    ///   14    - Request to send (RTS)
+    ///   15    - RTS hardware flow control enable (RTSEN)
+    ///   16    - CTS hardware flow control enable (CTSEN)
+    ///   31:17 - Reserved
     pub cr: u32,                // 0x30
-    /// Interrupt FIFO Level Select Register.
+    /// Interrupt FIFO Level Select Register (IFLS) - 0x34
+    /// Not typically used in basic polling drivers.
     pub ifls: u32,              // 0x34
-    /// Interrupt Mask Set/Clear Register.
+    /// Interrupt Mask Set/Clear Register (IMSC) - 0x38
+    /// Not typically used in basic polling drivers.
     pub imsc: u32,              // 0x38
-    /// Raw Interrupt Status Register.
+    /// Raw Interrupt Status Register (RIS) - 0x3C
     pub ris: u32,               // 0x3C
-    /// Masked Interrupt Status Register.
+    /// Masked Interrupt Status Register (MIS) - 0x40
     pub mis: u32,               // 0x40
-    /// Interrupt Clear Register.
+    /// Interrupt Clear Register (ICR) - 0x44
+    /// Write 1 to clear corresponding interrupt.
     pub icr: u32,               // 0x44
-    /// DMA Control Register.
+    /// DMA Control Register (DMACR) - 0x48
     pub dmacr: u32,             // 0x48
     _reserved2: [u32; 13],      // 0x4C-0x7C (unused)
-    /// Test Control Register (not typically used).
+    /// Test Control Register (ITCR) - 0x80
     pub itcr: u32,              // 0x80
-    /// Integration Test Input Register (not typically used).
+    /// Integration Test Input Register (ITIP) - 0x84
     pub itip: u32,              // 0x84
-    /// Integration Test Output Register (not typically used).
+    /// Integration Test Output Register (ITOP) - 0x88
     pub itop: u32,              // 0x88
-    /// Test Data Register (not typically used).
+    /// Test Data Register (TDR) - 0x8C
     pub tdr: u32,               // 0x8C
 }

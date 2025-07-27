@@ -12,7 +12,7 @@ mod hal;
 // this is the section main of that the assembly code will jump to
 pub extern "C" fn main() -> ! {
     // Initialize UART first
-    drivers::uart::init();
+    drivers::uart::uart0::init();
     
     // Send a test message
     println!("Hello from Raspberry Pi 4 UART!");
@@ -25,7 +25,7 @@ pub extern "C" fn main() -> ! {
         println!("Loop count: {}", counter);
         
         // Check for incoming UART data and echo it
-        if let Some(received_byte) = drivers::uart::read_byte() {
+        if let Some(received_byte) = drivers::uart::uart0::read_byte() {
             print!("Received: '{}' (0x{:02X})\r\n", received_byte as char, received_byte);
         }
         
@@ -67,7 +67,7 @@ pub struct UartWriter;
 
 impl core::fmt::Write for UartWriter {
     fn write_str(&mut self, s: &str) -> core::fmt::Result {
-        drivers::uart::write_string(s);
+        drivers::uart::uart0::write_string(s);
         Ok(())
     }
 }

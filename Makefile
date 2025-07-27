@@ -40,12 +40,17 @@ NM = aarch64-linux-gnu-nm
 # It also ensures the commands for these targets run every time they are invoked, regardless of file timestamps.
 .PHONY: all clean debug run qemu install-deps docker-build docker-compile docker-shell docker-qemu-debug
 
+#run will just redirect to qemu run
+
+
+
+
 # --- Main Build Rule ---
-# 'all' is often the default target. When you run 'make' without specifying a target,
+# 'all' is the default target. When you run 'make' without specifying a target,
 # it will try to build the first target in the Makefile that is not a phony target (unless it's explicitly called).
 # This rule says that to build 'all', the '$(KERNEL)' file must be built first.
 all: $(KERNEL)
-
+run: qemu
 # --- Dependency Installation Rule ---
 # 'install-deps' is a phony target to set up the development environment.
 install-deps:
@@ -108,7 +113,7 @@ qemu: $(KERNEL)
 		-kernel $(KERNEL) \
 		-serial stdio \
 		-display none \
-		-d guest_errors
+		-d guest_errors,unimp,mmu
 # Emulate a Raspberry Pi 4 Model B.
 # Use Cortex-A72 CPU.
 # Load the specified kernel image.
