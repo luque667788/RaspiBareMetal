@@ -2,7 +2,6 @@
 //!
 //! This module provides structures for accessing UART-specific registers.
 //! Currently focuses on Mini UART registers, which are part of the Auxiliary Peripherals block.
-//!
 //! The addresses and register layouts are based on the BCM2835/BCM2837 ARM Peripherals datasheets.
 
 use super::auxiliary::AUX_REGS_BASE;
@@ -60,4 +59,56 @@ pub struct MiniUartRegisters {
     /// Baudrate = system_clock_freq / (8 * (baud_reg + 1)).
     /// Only the lower 16 bits (15:0) are used.
     pub aux_mu_baud_reg: u32, // Offset 0x68 from AUX_REGS_BASE
+}
+
+/// Base address for the PL011 UART registers (UART0).
+/// This is the standard UART on the BCM2835/BCM2837 SoCs.
+pub const PL011_UART_BASE: usize = 0x3F201000; // For RPi 2/3. Use 0x20201000 for RPi 1/Zero.
+
+/// Pointer to the PL011 UART registers.
+pub const PL011_UART_REGS: *mut Pl011UartRegisters = PL011_UART_BASE as *mut Pl011UartRegisters;
+
+/// Represents the PL011 UART registers.
+/// This struct provides direct access to the full UART (UART0) functionality.
+#[repr(C)]
+pub struct Pl011UartRegisters {
+    /// Data Register. Read: RX FIFO, Write: TX FIFO.
+    pub dr: u32,                // 0x00
+    /// Receive Status / Error Clear Register.
+    pub rsrecr: u32,            // 0x04
+    _reserved0: [u32; 4],       // 0x08-0x14 (unused)
+    /// Flag Register. Status bits for TX/RX FIFO, busy, etc.
+    pub fr: u32,                // 0x18
+    _reserved1: u32,            // 0x1C
+    /// IrDA Low-Power Counter Register (not typically used).
+    pub ilpr: u32,              // 0x20
+    /// Integer Baud Rate Divisor.
+    pub ibrd: u32,              // 0x24
+    /// Fractional Baud Rate Divisor.
+    pub fbrd: u32,              // 0x28
+    /// Line Control Register. Data size, parity, stop bits, FIFO enable.
+    pub lcrh: u32,              // 0x2C
+    /// Control Register. Enables UART, TX, RX, etc.
+    pub cr: u32,                // 0x30
+    /// Interrupt FIFO Level Select Register.
+    pub ifls: u32,              // 0x34
+    /// Interrupt Mask Set/Clear Register.
+    pub imsc: u32,              // 0x38
+    /// Raw Interrupt Status Register.
+    pub ris: u32,               // 0x3C
+    /// Masked Interrupt Status Register.
+    pub mis: u32,               // 0x40
+    /// Interrupt Clear Register.
+    pub icr: u32,               // 0x44
+    /// DMA Control Register.
+    pub dmacr: u32,             // 0x48
+    _reserved2: [u32; 13],      // 0x4C-0x7C (unused)
+    /// Test Control Register (not typically used).
+    pub itcr: u32,              // 0x80
+    /// Integration Test Input Register (not typically used).
+    pub itip: u32,              // 0x84
+    /// Integration Test Output Register (not typically used).
+    pub itop: u32,              // 0x88
+    /// Test Data Register (not typically used).
+    pub tdr: u32,               // 0x8C
 }
