@@ -4,6 +4,10 @@
 use core::panic::PanicInfo;
 mod drivers;
 mod hal;
+mod log;
+
+use drivers::gpio::GpioPin;
+use log::*;
 
 
 
@@ -11,13 +15,18 @@ mod hal;
 #[no_mangle] // Ensure the function name is not mangled by the compiler
 // this is the section main of that the assembly code will jump to
 pub extern "C" fn main() -> ! {
-    // Initialize UART first
+    // Initialize UART first otherwise logging will not work
     drivers::uart::uart0::init();
     
     // Send a test message
-    println!("Hello from Raspberry Pi 4 UART!");
+println!("Hello from Raspberry Pi 4 UART!");
     println!("UART is working!");
     println!("Send any character to see it echoed back!");
+    
+    // Example: Blink ACT LED (GPIO 42) to confirm kernel is running
+    let act_led = GpioPin::new(42);
+    act_led.set_output();
+    let mut led_on = false;
     
     let mut counter = 0u32;
     loop {
@@ -28,6 +37,14 @@ pub extern "C" fn main() -> ! {
         if let Some(received_byte) = drivers::uart::uart0::read_byte() {
             print!("Received: '{}' (0x{:02X})\r\n", received_byte as char, received_byte);
         }
+        
+        // Blink ACT LED (toggle logic in main)
+        if led_on {
+            act_led.set_low();
+        } else {
+            act_led.set_high();
+        }
+        led_on = !led_on;
         
         // Simple delay
         for _ in 0..1000000 {
@@ -41,33 +58,4 @@ pub extern "C" fn main() -> ! {
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
     loop {}
-}
-
-// Simple print macro for easier UART output
-#[macro_export]
-macro_rules! print {
-    ($($arg:tt)*) => {{
-        use core::fmt::Write;
-        let mut writer = crate::UartWriter;
-        write!(writer, $($arg)*).ok();
-    }};
-}
-
-#[macro_export]
-macro_rules! println {
-    () => (print!("\r\n"));
-    ($($arg:tt)*) => {{
-        print!($($arg)*);
-        print!("\r\n");
-    }};
-}
-
-// Simple wrapper to implement Write trait for UART
-pub struct UartWriter;
-
-impl core::fmt::Write for UartWriter {
-    fn write_str(&mut self, s: &str) -> core::fmt::Result {
-        drivers::uart::uart0::write_string(s);
-        Ok(())
-    }
 }

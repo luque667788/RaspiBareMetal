@@ -23,30 +23,25 @@
 //!
 //! fn main() {
 //!     // Initialize the UART (select which one in the driver)
-//!     uart::init();
+//!     uart::uart0::init();
 //!
 //!     // Write a string
-//!     uart::write_string("Hello, UART!\r\n");
+//!     uart::uart0::write_string("Hello, UART!\r\n");
 //!
 //!     // Read a byte (if available)
-//!     if let Some(byte) = uart::read_byte() {
-//!         uart::write_byte(byte); // Echo it back
+//!     if let Some(byte) = uart::uart0::read_byte() {
+//!         uart::uart0::write_byte(byte); // Echo it back
 //!     }
 //!
 //!     // Read a line into a buffer
 //!     let mut buf = [0u8; 128];
-//!     if let Some(len) = uart::read_line(&mut buf) {
+//!     if let Some(len) = uart::uart0::read_line(&mut buf) {
 //!         // Do something with the input
 //!     }
 //! }
 //! ```
 //!
-//! # Selecting UART
-//! By default, the driver uses the PL011 UART (uart0). To use the Mini UART instead, change the `UART_TYPE` constant at the top of this file.
-//!
-//! # Notes
-//! - Make sure your board's GPIO pins are connected to the correct UART and configured for the right alternate function.
-//! - Baud rate and clock settings may need adjustment for your hardware.
+
 
 pub mod mini_uart;
 pub mod uart0;
