@@ -13,6 +13,7 @@ This project is a simple exploration of baremetal programming on the Raspberry P
 - **src/main.rs**: Main Rust code. Handles board initialization, LED blinking, and UART output.
 - **src/hal/registers/**: Register definitions for GPIO, UART, and auxiliary peripherals, organized as Rust structs for safe access.
 - **src/drivers/uart/**: Modular UART drivers for both Mini UART and PL011 UART (UART0), with clear comments and usage examples.
+- **src/log.rs**: Implements a custom `print!` and `println!` macro for serial output over UART, so you can easily print debug/info messages from your baremetal code.
 - **Makefile**: Build system for cross-compiling, running in QEMU, and Docker support.
 - **Dockerfile**: For building and running the project in a containerized environment.
 - **debug.sh**: Script to help set up remote GDB debugging with QEMU.
@@ -56,4 +57,5 @@ This project is a simple exploration of baremetal programming on the Raspberry P
 All of these are implemented as `.PHONY` targets in the Makefile, so they always run when invoked, regardless of file timestamps. The `run` target is a simple alias for `qemu` for convenience.
 
 ## Notes
+
 - Comments and documentation were written with the help of AI coding assistants (GitHub Copilot for Students).
