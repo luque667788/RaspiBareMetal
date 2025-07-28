@@ -54,8 +54,8 @@ This project is a simple exploration of baremetal programming on the Raspberry P
     - `make docker-qemu-debug`: Runs QEMU in debug mode inside Docker, exposing GDB and QEMU monitor ports for remote debugging.
     - `make docker-shell`: Opens an interactive shell inside the Docker container for manual builds or troubleshooting.
 
-All of these are implemented as `.PHONY` targets in the Makefile, so they always run when invoked, regardless of file timestamps. The `run` target is a simple alias for `qemu` for convenience.
 
 ## Notes
+- The `run` target is a simple alias for `qemu` for convenience.
 
 - Comments and documentation were written with the help of AI coding assistants (GitHub Copilot for Students).
