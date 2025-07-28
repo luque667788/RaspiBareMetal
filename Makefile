@@ -38,7 +38,7 @@ NM = aarch64-linux-gnu-nm
 # .PHONY declares targets that are not actual files.
 # This prevents 'make' from getting confused if a file with the same name as a phony target exists.
 # It also ensures the commands for these targets run every time they are invoked, regardless of file timestamps.
-.PHONY: all clean debug run qemu install-deps docker-build docker-compile docker-shell docker-qemu-debug
+.PHONY: all clean debug run qemu docker-build docker-compile docker-shell docker-qemu-debug
 
 #run will just redirect to qemu run
 
@@ -51,16 +51,6 @@ NM = aarch64-linux-gnu-nm
 # This rule says that to build 'all', the '$(KERNEL)' file must be built first.
 all: $(KERNEL)
 run: qemu
-# --- Dependency Installation Rule ---
-# 'install-deps' is a phony target to set up the development environment.
-install-deps:
-# Adds the specified Rust target for cross-compilation.
-	rustup target add $(TARGET)
-# Updates the system's package list. 'sudo' is used for administrative privileges.
-	sudo apt update
-# Installs the AArch64 GCC cross-compiler and QEMU system emulator for AArch64.
-# '-y' automatically confirms prompts.
-	sudo apt install -y gcc-aarch64-linux-gnu qemu-system-aarch64
 
 # --- ELF Build Rule ---
 # This rule defines how to build the ELF file specified by the $(ELF) variable.

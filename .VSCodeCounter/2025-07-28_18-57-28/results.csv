@@ -1,0 +1,25 @@
+"filename", "language", "TOML", "Assembly", "Markdown", "Rust", "Shell Script", "Docker", "Makefile", "LinkerScript", "comment", "blank", "total"
+"/home/luque/prog/linux/OSdev/f_attempt/.cargo/config.toml", "TOML", 7, 0, 0, 0, 0, 0, 0, 0, 17, 1, 25
+"/home/luque/prog/linux/OSdev/f_attempt/Cargo.lock", "TOML", 4, 0, 0, 0, 0, 0, 0, 0, 2, 2, 8
+"/home/luque/prog/linux/OSdev/f_attempt/Cargo.toml", "TOML", 14, 0, 0, 0, 0, 0, 0, 0, 5, 3, 22
+"/home/luque/prog/linux/OSdev/f_attempt/Dockerfile", "Docker", 0, 0, 0, 0, 0, 34, 0, 0, 8, 8, 50
+"/home/luque/prog/linux/OSdev/f_attempt/Makefile", "Makefile", 0, 0, 0, 0, 0, 0, 62, 0, 93, 23, 178
+"/home/luque/prog/linux/OSdev/f_attempt/README.md", "Markdown", 0, 0, 41, 0, 0, 0, 0, 0, 0, 11, 52
+"/home/luque/prog/linux/OSdev/f_attempt/build.rs", "Rust", 0, 0, 0, 23, 0, 0, 0, 0, 24, 6, 53
+"/home/luque/prog/linux/OSdev/f_attempt/debug.sh", "Shell Script", 0, 0, 0, 0, 38, 0, 0, 0, 10, 10, 58
+"/home/luque/prog/linux/OSdev/f_attempt/linker.ld", "LinkerScript", 0, 0, 0, 0, 0, 0, 0, 35, 42, 11, 88
+"/home/luque/prog/linux/OSdev/f_attempt/src/boot.S", "Assembly", 0, 191, 0, 0, 0, 0, 0, 0, 0, 29, 220
+"/home/luque/prog/linux/OSdev/f_attempt/src/drivers/gpio.rs", "Rust", 0, 0, 0, 50, 0, 0, 0, 0, 24, 7, 81
+"/home/luque/prog/linux/OSdev/f_attempt/src/drivers/mod.rs", "Rust", 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 2
+"/home/luque/prog/linux/OSdev/f_attempt/src/drivers/uart.rs", "Rust", 0, 0, 0, 2, 0, 0, 0, 0, 43, 3, 48
+"/home/luque/prog/linux/OSdev/f_attempt/src/drivers/uart/mini_uart.rs", "Rust", 0, 0, 0, 82, 0, 0, 0, 0, 16, 9, 107
+"/home/luque/prog/linux/OSdev/f_attempt/src/drivers/uart/uart0.rs", "Rust", 0, 0, 0, 78, 0, 0, 0, 0, 17, 9, 104
+"/home/luque/prog/linux/OSdev/f_attempt/src/hal/mod.rs", "Rust", 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1
+"/home/luque/prog/linux/OSdev/f_attempt/src/hal/registers/auxiliary.rs", "Rust", 0, 0, 0, 7, 0, 0, 0, 0, 13, 4, 24
+"/home/luque/prog/linux/OSdev/f_attempt/src/hal/registers/gpio.rs", "Rust", 0, 0, 0, 18, 0, 0, 0, 0, 29, 4, 51
+"/home/luque/prog/linux/OSdev/f_attempt/src/hal/registers/mod.rs", "Rust", 0, 0, 0, 4, 0, 0, 0, 0, 1, 1, 6
+"/home/luque/prog/linux/OSdev/f_attempt/src/hal/registers/uart.rs", "Rust", 0, 0, 0, 42, 0, 0, 0, 0, 118, 6, 166
+"/home/luque/prog/linux/OSdev/f_attempt/src/hal/registers/utils.rs", "Rust", 0, 0, 0, 15, 0, 0, 0, 0, 7, 2, 24
+"/home/luque/prog/linux/OSdev/f_attempt/src/log.rs", "Rust", 0, 0, 0, 23, 0, 0, 0, 0, 5, 6, 34
+"/home/luque/prog/linux/OSdev/f_attempt/src/main.rs", "Rust", 0, 0, 0, 39, 0, 0, 0, 0, 9, 13, 61
+"Total", "-", 25, 191, 41, 386, 38, 34, 62, 35, 483, 168, 1463
