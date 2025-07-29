@@ -1,88 +1,40 @@
-/* ENTRY directive:
-    Specifies the entry point of the program. 
-    Execution will begin at the symbol `_start`. */
+/* Entry point for the program */
 ENTRY(_start)
 
-/* MEMORY directive:
-    Defines memory regions available to the linker. */
-MEMORY
-{
-     /* Define a memory region named RAM.
-         ORIGIN: Specifies the starting address of the RAM region (0x80000). it is the base address where the program will be loaded on RAM (see bootloader datasheet)
-         LENGTH: Specifies the size of the RAM region (128 Megabytes). */
-     RAM : ORIGIN = 0x80000, LENGTH = 128M
-}
+/* Define RAM region: start at 0x80000, size 128MB */
+MEMORY { RAM : ORIGIN = 0x80000, LENGTH = 128M }
 
-/* SECTIONS directive:
-    Defines how input sections from object files are mapped into output sections in the final executable. */
-SECTIONS
-{
-     /* Set the current location counter ('.') to 0x80000. 
-         This means the first section will be placed at this address. */
-     . = 0x80000; 
+SECTIONS {
+     . = 0x80000; /* Place everything at 0x80000 */
 
-     
-     /* Define an output section named .text.boot. */
-     .text.boot : {
-          /* KEEP directive:
-              Ensures that all input sections matching the pattern *(.text.boot) are included,
-              even if they are not referenced. This is used for startup code.
-              text.boot assembly code */
+     /* Startup code (always keep) */
+     .text.boot : { KEEP(*(.text.boot)) } > RAM
+    /*why > RAM? a: To place the startup code in the RAM region for execution.*/
 
-          KEEP(*(.text.boot))
-     } > RAM /* Place this section in the RAM memory region. */
-     
-     /* Define an output section named .text. */
-     .text : {
-          /* Include all input sections whose names start with .text (e.g., .text, .text.foo). */
-          /*in our particular case we have a .text section for the main function in rust */
-          *(.text*)
-     } > RAM /* Place this section in the RAM memory region. */
-     
-     /* Define an output section named .rodata (read-only data). */
-     .rodata : {
-          /* Include all input sections whose names start with .rodata. */
-          *(.rodata*)
-     } > RAM /* Place this section in the RAM memory region. */
-     
-     /* Define an output section named .data (initialized data). */
-     /* this is for the global variables that are initialized */
-     .data : {
-          /* Include all input sections whose names start with .data. */
-          *(.data*)
-     } > RAM /* Place this section in the RAM memory region. */
-     
-     /* Define an output section named .bss (uninitialized data). */
-     .bss : {
-          /* Define a symbol `__bss_start` to mark the beginning of the .bss section.
-              '.' refers to the current location counter. */
-          __bss_start = .;
-          /* Include all input sections whose names start with .bss. */
-          *(.bss*)
-          /* Include all common symbols. Common symbols are uninitialized global variables
-              that are not explicitly placed in .bss by the compiler. */
-          *(COMMON)
-          /* Align the current location counter to the next 8-byte boundary.
-              This ensures that the .bss section (or the data following it) is properly aligned. */
-          . = ALIGN(8);
-          /* Define a symbol `__bss_end` to mark the end of the .bss section. */
-          __bss_end = .;
-     } > RAM /* Place this section in the RAM memory region. */
-     
-     /* Define a symbol `__bss_size` to calculate the size of the .bss section in 64-bit words (8 bytes).
-         This is calculated as the difference between the end and start addresses, divided by 8. */
-     __bss_size = (__bss_end - __bss_start) / 8;
-     
-     /* /DISCARD/ directive:
-         Specifies sections that should be discarded and not included in the final output file. */
-     /DISCARD/ : {
-          /* Discard any input sections named .comment. */
-          *(.comment)
-          /* Discard any input sections whose names start with .gnu. */
-          *(.gnu*)
-          /* Discard any input sections whose names start with .note. */
-          *(.note*)
-          /* Discard any input sections whose names start with .eh_frame (exception handling frames). */
-          *(.eh_frame*)
-     }
+     /* Main code */
+     .text : { *(.text*) } > RAM
+
+     /* Read-only data */
+     .rodata : { *(.rodata*) } > RAM
+
+     /* Initialized data */
+     .data : { *(.data*) } > RAM
+
+    /* Uninitialized data (BSS) section.
+       This section holds uninitialized global and static variables.
+       The linker sets __bss_start to the start address of the BSS,
+       and __bss_end to the end address (after aligning to 8 bytes).
+       The BSS size is calculated in 8-byte units for zeroing in the startup code.
+    */
+    .bss : {
+        __bss_start = .;    /* Mark start of BSS section */
+        *(.bss*)            /* Place all .bss input sections here */
+        *(COMMON)           /* Place COMMON symbols (uninitialized data) here */
+        . = ALIGN(8);       /* Align end of BSS to 8 bytes */
+        __bss_end = .;      /* Mark end of BSS section */
+    } > RAM
+    __bss_size = (__bss_end - __bss_start) / 8; /* Size in 8-byte units */
+
+     /* Discard unneeded sections */
+     /DISCARD/ : { *(.comment) *(.gnu*) *(.note*) *(.eh_frame*) }
 }
